@@ -59,6 +59,8 @@ Lets repeat this process for the other ESP32 but now use the code in this reposi
 ```uint8_t droneMAC[] = {0xC8, 0x2E, 0x12, 0x21, 0xBC, 0x24};``` you will need to replace the numbers with the MAC address of the reciever you saved before.
 
 ## Electronics
-Here is a diagram of what the wiring will look like
+The Diagram I put together below will show you how to wire the transmitter ESP32
+
+![Transmitter Diagram](images/transmitter.png)
 
 
