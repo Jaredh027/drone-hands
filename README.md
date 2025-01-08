@@ -40,6 +40,25 @@ To grab the data from the MPU-6050s and send it to the reciever we will need a m
 ## ESP32 - Reciever
 This ESP32 uses the ESP-NOW data reception to collect the data sent from the transmitter. Once this data is recieved it is translated into PWM (Pulse Width Modulation) by using ESP32's built in capabilities. We are using PWM because this is used to generate a signal for the flight controller. This signal consists of pulses that have different widths which are measured in microseconds. For our case these widths range from 1000 to 2000 microseconds, with 1000 representing the lowest value such as a throttle of 0 and 2000 representing the highest suchas the throttle at full. Once the data is translated it is sent to the flight controller where it can use these signals to control the motors.
 
+# Getting Started
+Let's dive into setting up the code and electronics
 
+## Programs
+Open your Arduino IDE, and go to your settings/preferences to find the "Additional Board Manager URLs" section, then paste in this link "https://dl.espressif.com/dl/package_esp32_index.json" and press ok.
+
+Now go to the boards manager section and search for "esp32 by Espressif" (I am using version 3.1.0) and press install. 
+
+### Uploading programs to ESP32s
+Now we can plug in one of our ESP32s into our computer select its port and define its board as "DOIT ESP32 DEVKIT V1" in the Arduino IDE. After completing these steps we should now be able to upload a program to the ESP32.
+
+Now lets make a new sketch and copy the code included in this repository under "reciever" to your new sketch. Compile this program and install the libraries you are missing. Once the program is able to be compiled press the upload button and this program will now be saved on your ESP32.
+
+If you open the "serial monitor" in the Arduino IDE once the reciever code is uploaded and the ESP32 is still plugged in you can see find the MAC address of the ESP32 which we will need for the transmitter. This will look like "C8:2E:12:21:BC:24" in the serial monitor, once your find it copy and pase this into something you can grab later.
+
+Lets repeat this process for the other ESP32 but now use the code in this repository under "transmitter". The only step that will be different is under the code section that says 
+```uint8_t droneMAC[] = {0xC8, 0x2E, 0x12, 0x21, 0xBC, 0x24};``` you will need to replace the numbers with the MAC address of the reciever you saved before.
+
+## Electronics
+Here is a diagram of what the wiring will look like
 
 
