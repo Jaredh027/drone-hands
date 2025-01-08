@@ -1,66 +1,121 @@
-# drone-hands
-This repo is dedicated to a project that allows a user to control a drone with their hands as the controller.
+# Drone-Hands
 
-# Parts
-(2) ESP32 | (2) MPU-6050 - gyroscope/accelerometer | (1) drone/vehicle to control 
+Control a drone using hand movements as the controller. This project allows you to translate natural hand gestures into drone control signals, creating an intuitive flying experience.
 
-# Software
-Arduino IDE (For programming ESP32) | LibrePilot (For calibrating drones flight controller)
+## Overview
 
-# Overview
-A regular drone usually consists of a couple of main parts that allows the user to control the motors
-1) Transmitter (controller)
-2) Reciever (translates transmitter data to data that can be read by the flight controller)
-3) Flight Controller (sends reciever data to motor and stabalizes drone)
+Traditional drone control systems consist of three main components:
+1. Transmitter (controller)
+2. Receiver (translates transmitter data for the flight controller)
+3. Flight Controller (processes receiver data and stabilizes drone)
 
-In my case I want my transmitter/controller to be my hands. Meaning when I move my hand upward/downward or side-to-side I want the drone to move with my hands movements.
+This project replaces the traditional transmitter with hand movements, using gyroscope/accelerometer sensors to track hand positioning.
 
-# How to achieve this
-What we need to do is mimic the controllers and reciever. 
-This means sending our own data for the Throttle, Roll, Pitch, and Yaw using our hands.
+### Control Mapping
 
-Our hands movement will specifically be them being rotated as if you are using a doorknob for data such as Roll and Yaw, and them being titled up and down as if you are knocking on a door for the Throttle and Pitch.
+| Control Function | Hand | Movement Type |
+|-----------------|------|---------------|
+| Throttle | Left Hand | Tilt (up/down) |
+| Yaw | Left Hand | Rotation |
+| Pitch | Right Hand | Tilt (up/down) |
+| Roll | Right Hand | Rotation |
 
-Throttle  |  Left Hand  | Titled
+## Required Hardware
 
-Yaw       |  Left Hand  | Rotated
+- 2× ESP32 microcontrollers
+- 2× MPU-6050 (gyroscope/accelerometer)
+- 1× Drone/vehicle to control
+- USB cable for programming
 
-Pitch     |  Right Hand | Titled
+## Required Software
 
-Roll      |  Right Hand | Rotated
+- Arduino IDE (for ESP32 programming)
+- LibrePilot (for flight controller calibration)
 
-This table above is an overview of which hand (left or right) controls what funciton (throttle, pitch, etc) by which movement (rotation or tilt).
+## Setup Instructions
 
-## MPU-6050
-To track this data we need something that can track the rotation and tilt of our hands and this is where the MPU-6050 comes in. This device is an Inertial Measurement Unit (IMU) with a built-in 3-axis accelerometer and 3-axis gyroscope, which together measure linear acceleration and angular velocity. To track the throttle and yaw we will put one on our left hand and to track pitch and roll we will place one on our right hand.
+### 1. Arduino IDE Configuration
 
-## ESP32 - Transmitter
-To grab the data from the MPU-6050s and send it to the reciever we will need a micro-contoller that can be programmed to translate this data into the correct format and be able to send it to the reciever. For this job I have chosen the ESP32 as it has a special peer-to-peer communication protocol that uses the 2.4 GHz WiFi band bypassing traditional WiFi. Meaning as long as I have the unique MAC address of the reciever ESP32 I can send it data from the transmitter ESP32.
+1. Open Arduino IDE preferences
+2. Add ESP32 board manager URL:
+   ```
+   https://dl.espressif.com/dl/package_esp32_index.json
+   ```
+3. Install ESP32 board package:
+   - Open Boards Manager
+   - Search for "esp32 by Espressif" (version 3.1.0 recommended)
+   - Click Install
 
-## ESP32 - Reciever
-This ESP32 uses the ESP-NOW data reception to collect the data sent from the transmitter. Once this data is recieved it is translated into PWM (Pulse Width Modulation) by using ESP32's built in capabilities. We are using PWM because this is used to generate a signal for the flight controller. This signal consists of pulses that have different widths which are measured in microseconds. For our case these widths range from 1000 to 2000 microseconds, with 1000 representing the lowest value such as a throttle of 0 and 2000 representing the highest suchas the throttle at full. Once the data is translated it is sent to the flight controller where it can use these signals to control the motors.
+### 2. ESP32 Programming
 
-# Getting Started
-Let's dive into setting up the code and electronics
+#### Receiver Setup
+1. Connect first ESP32 to computer
+2. Select "DOIT ESP32 DEVKIT V1" as board type
+3. Upload receiver code from repository
+4. Open Serial Monitor to obtain MAC address (will look like this: ```C8:2E:12:21:BC:24```)
+5. Save MAC address for transmitter configuration
 
-## Programs
-Open your Arduino IDE, and go to your settings/preferences to find the "Additional Board Manager URLs" section, then paste in this link "https://dl.espressif.com/dl/package_esp32_index.json" and press ok.
+#### Transmitter Setup
+1. Connect second ESP32 to computer
+2. Update MAC address in transmitter code:
+   ```
+   uint8_t droneMAC[] = {0xC8, 0x2E, 0x12, 0x21, 0xBC, 0x24}; // Replace with your receiver's MAC
+   ```
+3. Upload transmitter code
 
-Now go to the boards manager section and search for "esp32 by Espressif" (I am using version 3.1.0) and press install. 
+### 3. Hardware Assembly
 
-### Uploading programs to ESP32s
-Now we can plug in one of our ESP32s into our computer select its port and define its board as "DOIT ESP32 DEVKIT V1" in the Arduino IDE. After completing these steps we should now be able to upload a program to the ESP32.
-
-Now lets make a new sketch and copy the code included in this repository under "reciever" to your new sketch. Compile this program and install the libraries you are missing. Once the program is able to be compiled press the upload button and this program will now be saved on your ESP32.
-
-If you open the "serial monitor" in the Arduino IDE once the reciever code is uploaded and the ESP32 is still plugged in you can see find the MAC address of the ESP32 which we will need for the transmitter. This will look like "C8:2E:12:21:BC:24" in the serial monitor, once your find it copy and pase this into something you can grab later.
-
-Lets repeat this process for the other ESP32 but now use the code in this repository under "transmitter". The only step that will be different is under the code section that says 
-```uint8_t droneMAC[] = {0xC8, 0x2E, 0x12, 0x21, 0xBC, 0x24};``` you will need to replace the numbers with the MAC address of the reciever you saved before.
-
-## Electronics
-The Diagram I put together below will show you how to wire the transmitter ESP32
-
+#### Transmitter Wiring
 ![Transmitter Diagram](images/transmitter.png)
 
+#### Receiver Wiring
+![Receiver Diagram](images/reciever.png)
 
+### 4. Flight Controller Configuration
+
+1. Connect flight controller to computer
+2. Open LibrePilot
+3. Update firmware if necessary
+4. Calibrate motors
+5. Verify receiver activity:
+   - Check "Receiver Activity" indicator in Configuration → Input
+   - Green box should show channel activity when moving MPU-6050s
+6. Run Transmitter Setup Wizard
+   - Configure throttle, pitch, roll, yaw
+   - ***Important:*** Configure flight mode:
+       - Either reassign throttle wire to unused channel
+       - Or implement additional PWM signal in code
+   - Side Note: If you do not configure flight mode Libre Pilot will not allow you to succesfully arm your drone
+8. Configure arming settings:
+   - Set "Arm airframe using throttle off and:" to "Always armed"
+   - Save configuration
+
+## How It Works
+
+### MPU-6050
+- Inertial Measurement Unit (IMU) with built-in sensors:
+  - 3-axis accelerometer
+  - 3-axis gyroscope
+- Measures linear acceleration and angular velocity
+- One sensor per hand for complete control
+
+### ESP32 Communication
+- Transmitter ESP32:
+  - Reads MPU-6050 sensor data
+  - Uses ESP-NOW protocol over 2.4 GHz WiFi band
+  - Sends formatted data to receiver
+- Receiver ESP32:
+  - Receives data via ESP-NOW
+  - Converts to PWM signals (1000-2000µs range)
+  - Interfaces with flight controller
+
+## Safety Notes
+
+- Always remove propellers during initial setup and testing
+- Verify all connections before powering the system
+- Test all control movements before actual flight
+- Ensure proper failsafes are configured
+
+## Contributing
+
+Feel free to submit issues and pull requests to help improve this project.
