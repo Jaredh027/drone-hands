@@ -85,7 +85,7 @@ This project replaces the traditional transmitter with hand movements, using gyr
    - ***Important:*** Configure flight mode:
        - Either reassign throttle wire to unused channel
        - Or implement additional PWM signal in code
-   - Side Note: If you do not configure flight mode Libre Pilot will not allow you to succesfully arm your drone
+   - Side Note: If you do not configure flight mode Libre Pilot will not allow you to successfully arm your drone
 8. Configure arming settings:
    - Set "Arm airframe using throttle off and:" to "Always armed"
    - Save configuration
