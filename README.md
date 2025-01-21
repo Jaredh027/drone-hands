@@ -81,11 +81,11 @@ This project replaces the traditional transmitter with hand movements, using gyr
    - Check "Receiver Activity" indicator in Configuration → Input
    - Green box should show channel activity when moving MPU-6050s
 6. Run Transmitter Setup Wizard
+   - First make sure flight mode channel or GPIO 19 is disconnected
    - Configure throttle, pitch, roll, yaw
    - ***Important:*** Configure flight mode:
-       - Either reassign throttle wire to unused channel
-       - Or implement additional PWM signal in code
-   - Side Note: If you do not configure flight mode Libre Pilot will not allow you to succesfully arm your drone
+       - When time to set flight mode control plug back in GPIO 19
+   - Side Note: If you do not configure flight mode Libre Pilot will not allow you to successfully arm your drone
 8. Configure arming settings:
    - Set "Arm airframe using throttle off and:" to "Always armed"
    - Save configuration
